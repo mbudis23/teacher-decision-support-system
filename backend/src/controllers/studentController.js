@@ -1,4 +1,4 @@
-const Student = require('../models/Students');
+const Student = require('../models/Student');
 const fs = require('fs');
 const csv = require('csv-parser');
 

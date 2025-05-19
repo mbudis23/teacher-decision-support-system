@@ -6,6 +6,8 @@ const connectDB = require('./config/db');
 
 const teacherRoutes = require('./routes/teacherRoutes')
 const studentRoutes = require('./routes/studentRoutes');
+const dssRoutes = require('./routes/dssRoutes');
+const geminiRoutes = require('./routes/geminiRoutes');
 
 const app = express();
 connectDB();
@@ -17,5 +19,7 @@ app.use(cookieParser());
 
 app.use('/api/teachers', teacherRoutes);
 app.use('/api/students', studentRoutes);
+app.use('/api/dss', dssRoutes);
+app.use('/api/gemini', geminiRoutes);
 
 module.exports = app;
