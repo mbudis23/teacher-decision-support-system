@@ -5,6 +5,7 @@ require('dotenv').config();
 const connectDB = require('./config/db');
 
 const teacherRoutes = require('./routes/teacherRoutes')
+const studentRoutes = require('./routes/studentRoutes');
 
 const app = express();
 connectDB();
@@ -14,8 +15,7 @@ app.use(express.json());
 app.use(cookieParser()); 
 
 
-app.use('api/teachers', teacherRoutes);
-// const studentRoutes = require('./routes/studentRoutes');
-// app.use('/api/students', studentRoutes);
+app.use('/api/teachers', teacherRoutes);
+app.use('/api/students', studentRoutes);
 
 module.exports = app;
