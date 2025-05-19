@@ -17,6 +17,6 @@ router.get('/', getAllStudents);
 router.get('/:id', getStudentById);
 router.put('/:id', updateStudent);
 router.delete('/:id', deleteStudent);
-router.post('/import', upload.single('file'), importFromCSV);
+router.post('/import', upload.single('csv'), importFromCSV);
 
 module.exports = router;

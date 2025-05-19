@@ -1,5 +1,6 @@
 const Student = require('../models/Student');
 const axios = require('axios');
+const { calculateSAWRanking } = require('../services/sawServices');
 
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${process.env.GEMINI_API_KEY}`;
 const headers = { 'Content-Type': 'application/json' };
@@ -12,7 +13,6 @@ exports.rekomendasiSiswaTerbawah = async (req, res) => {
     if (className) filter.className = className;
 
     const Student = require('../models/Student');
-    const { calculateSAWRanking } = require('../services/sawService');
     const students = await Student.find(filter);
     if (students.length === 0) return res.status(404).json({ message: 'Tidak ada siswa ditemukan.' });
 

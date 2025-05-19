@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 require('dotenv').config();
 const connectDB = require('./config/db');
 
+
 const teacherRoutes = require('./routes/teacherRoutes')
 const studentRoutes = require('./routes/studentRoutes');
 const dssRoutes = require('./routes/dssRoutes');
@@ -20,6 +21,6 @@ app.use(cookieParser());
 app.use('/api/teachers', teacherRoutes);
 app.use('/api/students', studentRoutes);
 app.use('/api/dss', dssRoutes);
-app.use('/api/gemini', geminiRoutes);
+app.use('/api/', geminiRoutes);
 
 module.exports = app;
