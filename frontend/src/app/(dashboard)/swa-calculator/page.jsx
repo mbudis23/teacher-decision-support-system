@@ -42,6 +42,11 @@ export default function SWACalculatorPage() {
     observation: rubrics.observation[0].value,
     motivation: rubrics.motivation[0].value,
   });
+  const [selectFocus, setSelectFocus] = useState({
+    violation: false,
+    observation: false,
+    motivation: false,
+  });
   const [result, setResult] = useState(null);
 
   const fields = [
@@ -222,7 +227,13 @@ export default function SWACalculatorPage() {
                 name={field.name}
                 value={inputs[field.name]}
                 onChange={handleChange}
-                className="w-full border border-gray-300 rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
+                onFocus={() =>
+                  setSelectFocus((prev) => ({ ...prev, [field.name]: true }))
+                }
+                onBlur={() =>
+                  setSelectFocus((prev) => ({ ...prev, [field.name]: false }))
+                }
+                className="w-full border border-gray-300 rounded-md px-4 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer"
                 required
               >
                 {field.options.map((opt, idx) => (
@@ -231,7 +242,11 @@ export default function SWACalculatorPage() {
                   </option>
                 ))}
               </select>
-              <ChevronDown className="absolute right-3 top-9 w-5 h-5 text-gray-500 pointer-events-none" />
+              <ChevronDown
+                className={`absolute right-3 top-9 w-5 h-5 text-gray-500 pointer-events-none transform transition-transform duration-200 ${
+                  selectFocus[field.name] ? "rotate-180" : ""
+                }`}
+              />
             </div>
           )
         )}

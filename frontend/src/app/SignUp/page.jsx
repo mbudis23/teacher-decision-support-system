@@ -27,19 +27,19 @@ export default function SignupUnified() {
       name: "adminName",
       placeholder: "Enter the name of admin",
       type: "text",
-      extra: null,
+      extra: "required",
     },
     {
       name: "schoolName",
       placeholder: "Enter the name of school",
       type: "text",
-      extra: null,
+      extra: "required",
     },
     {
       name: "schoolEmail",
       placeholder: "Enter the school email",
       type: "email",
-      extra: null,
+      extra: "required",
     },
     {
       name: "password",
@@ -68,6 +68,26 @@ export default function SignupUnified() {
   };
 
   const handleNext = () => {
+    if (!formData.adminName.trim()) {
+      toast.error("Admin Name is required.");
+      return;
+    }
+    if (!formData.schoolName.trim()) {
+      toast.error("School Name is required.");
+      return;
+    }
+    if (!formData.schoolEmail.trim()) {
+      toast.error("School Email is required.");
+      return;
+    }
+    if (!formData.password) {
+      toast.error("Password is required.");
+      return;
+    }
+    if (!formData.confirmPassword) {
+      toast.error("Confirm Password is required.");
+      return;
+    }
     if (formData.password.length < 8) {
       toast.error("Password must be at least 8 characters.");
       return;
@@ -76,13 +96,13 @@ export default function SignupUnified() {
       toast.error("Password and Confirm Password do not match.");
       return;
     }
+
     toast.success("Account created successfully!");
     router.push("/Login");
   };
 
   return (
     <div className="relative flex flex-col items-center justify-center min-h-screen min-w-screen bg-gray-100 px-4">
-
       <ToastContainer
         position="top-right"
         autoClose={3000}
@@ -109,7 +129,6 @@ export default function SignupUnified() {
 
           return (
             <div key={field.name} className="mb-4">
-
               <div className="relative">
                 <input
                   name={field.name}
