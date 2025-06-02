@@ -107,10 +107,7 @@ export default function BobotKriteriaPage() {
         </h3>
         <p className="text-gray-700">
           Bobot (w) digunakan untuk memberi bobot relatif pada setiap kriteria.
-          Pastikan bahwa bobot tersebut dijumlahkan menjadi 1 (100%). Informasi
-          ini akan menjadi dasar perhitungan Simple Weighted Average maupun
-          metode fuzzy logic dalam menentukan siswa yang membutuhkan perhatian
-          khusus.
+          Informasi ini akan menjadi dasar perhitungan simple weighted average dalam menentukan siswa yang membutuhkan perhatian khusus.
         </p>
       </div>
     </div>
