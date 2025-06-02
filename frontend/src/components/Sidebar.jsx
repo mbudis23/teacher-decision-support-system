@@ -7,7 +7,6 @@ import {
   UsersIcon,
   SlidersIcon,
   ClipboardListIcon,
-  FileTextIcon,
   LifeBuoyIcon,
   UserIcon,
   LogOutIcon,
@@ -46,19 +45,13 @@ export default function Sidebar() {
           label="Bobot Kriteria"
         />
         <SidebarItem
-          href={`/hasil?schoolName=${encodeURIComponent(schoolName)}`}
-          icon={ClipboardListIcon}
-          label="Hasil & Peringkat"
-        />
-        <SidebarItem
-          href={`/laporan?schoolName=${encodeURIComponent(schoolName)}`}
-          icon={FileTextIcon}
-          label="Laporan & Ekspor"
-        />
-        <SidebarItem
           href={`/bantuan?schoolName=${encodeURIComponent(schoolName)}`}
           icon={LifeBuoyIcon}
           label="Bantuan & Dokumentasi"
+        /><SidebarItem
+          href={`/swa-calculator?schoolName=${encodeURIComponent(schoolName)}`}
+          icon={ClipboardListIcon}
+          label="SWA Calculator" 
         />
         <SidebarItem 
           href={`/profile?schoolName=${encodeURIComponent(schoolName)}`} 

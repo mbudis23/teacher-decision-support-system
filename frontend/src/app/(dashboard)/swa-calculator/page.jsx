@@ -2,13 +2,13 @@
 
 import React from "react";
 
-export default function LaporanPage() {
+export default function ProfilPage() {
   return (
     <div>
       <h2 className="text-2xl font-semibold text-gray-800 mb-4">
-        Laporan & Ekspor
+        SWA calculator
       </h2>
-      <p>Di halaman ini, user dapat mengunduh laporan dalam format PDF atau Excel.</p>
+      <p>Di halaman ini, user dapat menghitung nilai SWA dari seorang siswa</p>
     </div>
   );
 }
