@@ -34,34 +34,34 @@ export default function Sidebar() {
         </div>
       </div>
       <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
-        <SidebarItem href="/dashboard" icon={HomeIcon} label="Dashboard" />
+        <SidebarItem href={`/dashboard?schoolName=${encodeURIComponent(schoolName)}`} icon={HomeIcon} label="Dashboard" />
         <SidebarItem
-          href="/data-siswa"
+          href={`/data-siswa?schoolName=${encodeURIComponent(schoolName)}`}
           icon={UsersIcon}
           label="Data Siswa"
         />
         <SidebarItem
-          href="/bobot-kriteria"
+          href={`/bobot-kriteria?schoolName=${encodeURIComponent(schoolName)}`}
           icon={SlidersIcon}
           label="Bobot Kriteria"
         />
         <SidebarItem
-          href="/hasil"
+          href={`/hasil?schoolName=${encodeURIComponent(schoolName)}`}
           icon={ClipboardListIcon}
           label="Hasil & Peringkat"
         />
         <SidebarItem
-          href="/laporan"
+          href={`/laporan?schoolName=${encodeURIComponent(schoolName)}`}
           icon={FileTextIcon}
           label="Laporan & Ekspor"
         />
         <SidebarItem
-          href="/bantuan"
+          href={`/bantuan?schoolName=${encodeURIComponent(schoolName)}`}
           icon={LifeBuoyIcon}
           label="Bantuan & Dokumentasi"
         />
         <SidebarItem 
-          href="/profile" 
+          href={`/profile?schoolName=${encodeURIComponent(schoolName)}`} 
           icon={UserIcon} 
           label="Profile" 
         />
