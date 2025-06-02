@@ -29,7 +29,7 @@ export default function LoginName() {
   };
 
   const handleNext = () => {
-    router.push('');
+    router.push(`/dashboard?schoolName=${encodeURIComponent(formData.schoolName)}`);
   };
 
   const handleSignUp = () => {
