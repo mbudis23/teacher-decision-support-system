@@ -4,8 +4,9 @@ const {
   getAllStudents,
   createStudent,
 } = require("../controllers/studentController");
+const verifyTeacher = require("../middlewares/verifyTeacher");
 
-router.get("/", getAllStudents);
-router.post("/", createStudent); // optional: create new student
+router.get("/", verifyTeacher, getAllStudents);
+router.post("/", verifyTeacher, createStudent); // optional: create new student
 
 module.exports = router;
