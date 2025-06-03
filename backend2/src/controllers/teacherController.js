@@ -84,3 +84,69 @@ exports.loginTeacher = async (req, res) => {
     res.status(500).json({ message: "Server error. Please try again later." });
   }
 };
+
+// GET /api/teachers/profile
+exports.getProfile = async (req, res) => {
+  const teacher = req.user;
+  res.json({
+    teacherName: teacher.name, // ✅ gunakan .name dari model
+    schoolName: teacher.school, // ✅ gunakan .school
+    schoolEmail: teacher.email, // ✅ gunakan .email
+  });
+};
+
+// PUT /api/teacher/profile
+exports.updateProfile = async (req, res) => {
+  try {
+    const { teacherName, schoolEmail } = req.body;
+
+    if (!teacherName || !schoolEmail) {
+      return res.status(400).json({ message: "Semua field wajib diisi." });
+    }
+
+    const teacher = await Teacher.findById(req.user._id);
+    teacher.name = teacherName;
+    teacher.email = schoolEmail;
+    await teacher.save();
+
+    res.json({ message: "Profil berhasil diperbarui." });
+  } catch (err) {
+    console.error("Update profile error:", err.message);
+    res.status(500).json({ message: "Gagal memperbarui profil." });
+  }
+};
+
+// PUT /api/teacher/password
+exports.updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "Semua field password wajib diisi." });
+    }
+
+    const teacher = await Teacher.findById(req.user._id);
+    if (!teacher)
+      return res.status(404).json({ message: "Guru tidak ditemukan." });
+
+    const isMatch = await teacher.matchPassword(currentPassword);
+    if (!isMatch)
+      return res.status(401).json({ message: "Password lama salah." });
+
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({ message: "Password baru minimal 8 karakter." });
+    }
+
+    teacher.password = newPassword; // plain password, akan di-hash oleh schema hook
+    await teacher.save();
+
+    res.json({ message: "Password berhasil diubah." });
+  } catch (err) {
+    console.error("Update password error:", err.message);
+    res.status(500).json({ message: "Gagal mengubah password." });
+  }
+};

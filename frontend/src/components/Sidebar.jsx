@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 import SidebarItem from "./SidebarItem";
 import {
   HomeIcon,
@@ -11,17 +11,53 @@ import {
   UserIcon,
   LogOutIcon,
 } from "lucide-react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
 
-export default function Sidebar() {
-  const searchParams = useSearchParams();
-  const schoolName = searchParams.get("schoolName") || "My School";
-  const router = useRouter();
+const API_BASE = process.env.NEXT_PUBLIC_API_URI;
 
-  const handleLogout = () => {
+export default function Sidebar() {
+  const router = useRouter();
+  const [schoolName, setSchoolName] = useState("Loading...");
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URI}/api/teachers/profile`,
+          {
+            method: "GET",
+            credentials: "include",
+          }
+        );
+        if (!res.ok) throw new Error("Gagal memuat profil");
+        const data = await res.json();
+        setSchoolName(data.schoolName);
+      } catch (err) {
+        setSchoolName("Tidak diketahui");
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchProfile();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      await fetch(`${API_BASE}/api/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+      });
+    } catch (err) {
+      console.error("Logout gagal:", err);
+    }
     router.push("/Login");
   };
+
+  if (loading) {
+    return <div className="p-4 text-white">Memuat sidebar...</div>;
+  }
 
   return (
     <aside className="w-64 bg-blue-800 text-gray-200 flex flex-col">
@@ -36,40 +72,30 @@ export default function Sidebar() {
               className="object-cover"
             />
           </div>
-          <span className="font-semibold text-lg">{schoolName}</span>
+          <span className="font-semibold text-lg truncate max-w-[150px]">
+            {schoolName}
+          </span>
         </div>
       </div>
       <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
+        <SidebarItem href="/dashboard" icon={HomeIcon} label="Dashboard" />
+        <SidebarItem href="/data-siswa" icon={UsersIcon} label="Data Siswa" />
         <SidebarItem
-          href={`/dashboard?schoolName=${encodeURIComponent(schoolName)}`}
-          icon={HomeIcon}
-          label="Dashboard"
-        />
-        <SidebarItem
-          href={`/data-siswa?schoolName=${encodeURIComponent(schoolName)}`}
-          icon={UsersIcon}
-          label="Data Siswa"
-        />
-        <SidebarItem
-          href={`/bobot-kriteria?schoolName=${encodeURIComponent(schoolName)}`}
+          href="/bobot-kriteria"
           icon={SlidersIcon}
           label="Bobot Kriteria"
         />
         <SidebarItem
-          href={`/bantuan?schoolName=${encodeURIComponent(schoolName)}`}
-          icon={LifeBuoyIcon}
-          label="Bantuan & Dokumentasi"
-        />
-        <SidebarItem
-          href={`/swa-calculator?schoolName=${encodeURIComponent(schoolName)}`}
+          href="/swa-calculator"
           icon={ClipboardListIcon}
           label="SWA Calculator"
         />
         <SidebarItem
-          href={`/profile?schoolName=${encodeURIComponent(schoolName)}`}
-          icon={UserIcon}
-          label="Profile"
+          href="/bantuan"
+          icon={LifeBuoyIcon}
+          label="Bantuan & Dokumentasi"
         />
+        <SidebarItem href="/profile" icon={UserIcon} label="Profile" />
       </nav>
       <div className="px-4 py-4 border-t border-blue-700">
         <button

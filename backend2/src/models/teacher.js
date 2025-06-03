@@ -11,7 +11,7 @@ const teacherSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Hash password sebelum disimpan
+// Hash password sebelum disimpan (saat register / update password)
 teacherSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   const salt = await bcrypt.genSalt(10);
@@ -19,7 +19,7 @@ teacherSchema.pre("save", async function (next) {
   next();
 });
 
-// Bandingkan password saat login
+// Method untuk membandingkan password saat login
 teacherSchema.methods.matchPassword = function (password) {
   return bcrypt.compare(password, this.password);
 };
