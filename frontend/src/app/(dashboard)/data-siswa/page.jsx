@@ -23,44 +23,23 @@ export default function DataSiswaPage() {
   });
 
   useEffect(() => {
-    setData([
-      {
-        name: "Andi Wijaya",
-        className: "CS50",
-        email: "andi.wijaya@example.com",
-        gender: "Male",
-        grade: 85,
-        attendance: 95,
-        violations: 2,
-      },
-      {
-        name: "Siti Rahma",
-        className: "CS52",
-        email: "siti.rahma@example.com",
-        gender: "Female",
-        grade: 90,
-        attendance: 98,
-        violations: 1,
-      },
-      {
-        name: "Budi Santoso",
-        className: "CS51",
-        email: "budi.santoso@example.com",
-        gender: "Male",
-        grade: 78,
-        attendance: 88,
-        violations: 3,
-      },
-      {
-        name: "Rina Kartika",
-        className: "CS50",
-        email: "rina.kartika@example.com",
-        gender: "Female",
-        grade: 88,
-        attendance: 92,
-        violations: 0,
-      },
-    ]);
+    const fetchStudents = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URI}/api/students`,
+          {
+            credentials: "include",
+          }
+        );
+        if (!res.ok) throw new Error("Failed to fetch students");
+        const data = await res.json();
+        setData(data);
+      } catch (error) {
+        toast.error("Failed to load student data");
+      }
+    };
+
+    fetchStudents();
   }, []);
 
   const handleSearchChange = (e) => {
@@ -145,10 +124,11 @@ export default function DataSiswaPage() {
     setNewStudent((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleAddStudent = (e) => {
+  const handleAddStudent = async (e) => {
     e.preventDefault();
     const { name, className, email, gender, grade, attendance, violations } =
       newStudent;
+
     if (
       !name ||
       !className ||
@@ -161,9 +141,11 @@ export default function DataSiswaPage() {
       toast.error("Semua field wajib diisi.");
       return;
     }
+
     const gradeNum = parseFloat(grade);
     const attendanceNum = parseFloat(attendance);
     const violationsNum = parseInt(violations);
+
     if (isNaN(gradeNum) || gradeNum < 0 || gradeNum > 100) {
       toast.error("Grade harus angka antara 0 hingga 100.");
       return;
@@ -177,20 +159,40 @@ export default function DataSiswaPage() {
       return;
     }
 
-    setData((prev) => [
-      ...prev,
-      {
-        name,
-        className,
-        email,
-        gender,
-        grade: gradeNum,
-        attendance: attendanceNum,
-        violations: violationsNum,
-      },
-    ]);
-    setShowModal(false);
-    toast.success("Data siswa berhasil ditambahkan.");
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URI}/api/students`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+          body: JSON.stringify({
+            name,
+            className,
+            email,
+            gender,
+            grade: gradeNum,
+            attendance: attendanceNum,
+            violations: violationsNum,
+          }),
+        }
+      );
+
+      const result = await res.json();
+
+      if (!res.ok) {
+        toast.error(result.message || "Failed to add student.");
+        return;
+      }
+
+      setData((prev) => [...prev, result]);
+      setShowModal(false);
+      toast.success("Data siswa berhasil ditambahkan.");
+    } catch (error) {
+      toast.error("Server error. Cannot add student.");
+    }
   };
 
   return (

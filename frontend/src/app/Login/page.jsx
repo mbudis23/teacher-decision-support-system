@@ -10,23 +10,23 @@ export default function LoginName() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    schoolName: "",
-    schoolPassword: "",
+    email: "",
+    password: "",
   });
 
   const [visibility, setVisibility] = useState({
-    schoolPassword: false,
+    password: false,
   });
 
   const inputs = [
     {
-      name: "schoolName",
-      placeholder: "Enter the name of school",
+      name: "email",
+      placeholder: "Enter the school email",
       type: "text",
       extra: null,
     },
     {
-      name: "schoolPassword",
+      name: "password",
       placeholder: "Enter password for your school",
       type: "password",
       extra: "minLength",
@@ -45,17 +45,52 @@ export default function LoginName() {
     }));
   };
 
-  const handleLogin = () => {
-    if (!formData.schoolName.trim()) {
+  const handleLogin = async () => {
+    if (!formData.email.trim()) {
       toast.error("School Name is required.");
       return;
     }
-    if (formData.schoolPassword.length < 8) {
+    if (formData.password.length < 8) {
       toast.error("Password must be at least 8 characters.");
       return;
     }
-    toast.success("Login successful!");
-    router.push(`/dashboard?schoolName=${encodeURIComponent(formData.schoolName)}`);
+    try {
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URI}/api/teachers/login`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            email: formData.email,
+            password: formData.password,
+          }),
+          credentials: "include", // ✅ penting agar browser kirim & terima cookie
+        }
+      );
+
+      let data;
+      try {
+        data = await res.json();
+      } catch (e) {
+        const text = await res.text();
+        console.error("Invalid response:", text);
+        toast.error("Invalid server response.");
+        return;
+      }
+
+      if (!res.ok) {
+        toast.error(data.message || "Login failed.");
+        return;
+      }
+
+      toast.success("Login successful!");
+      router.push(`/dashboard?email=${encodeURIComponent(formData.email)}`);
+    } catch (error) {
+      console.error("Login error:", error);
+      toast.error("Failed to connect to the server.");
+    }
   };
 
   const handleSignUp = () => {
@@ -86,16 +121,14 @@ export default function LoginName() {
         </p>
 
         {inputs.map((field) => {
-          const isPasswordField = field.name === "schoolPassword";
+          const isPasswordField = field.name === "password";
           return (
             <div key={field.name} className="mb-4">
               <div className="relative">
                 <input
                   name={field.name}
                   type={
-                    isPasswordField && visibility.schoolPassword
-                      ? "text"
-                      : field.type
+                    isPasswordField && visibility.password ? "text" : field.type
                   }
                   placeholder={field.placeholder}
                   value={formData[field.name]}
@@ -105,10 +138,10 @@ export default function LoginName() {
                 {isPasswordField && (
                   <button
                     type="button"
-                    onClick={() => toggleVisibility("schoolPassword")}
+                    onClick={() => toggleVisibility("password")}
                     className="absolute inset-y-0 right-3 flex items-center text-gray-500 hover:text-gray-700 focus:outline-none"
                   >
-                    {visibility.schoolPassword ? (
+                    {visibility.password ? (
                       <EyeIcon className="w-5 h-5 cursor-pointer" />
                     ) : (
                       <EyeOffIcon className="w-5 h-5 cursor-pointer" />

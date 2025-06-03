@@ -10,7 +10,7 @@ export default function SignupUnified() {
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    adminName: "",
+    teacherName: "",
     schoolName: "",
     schoolEmail: "",
     password: "",
@@ -24,8 +24,8 @@ export default function SignupUnified() {
 
   const fields = [
     {
-      name: "adminName",
-      placeholder: "Enter the name of admin",
+      name: "teacherName",
+      placeholder: "Enter the name of teacher",
       type: "text",
       extra: "required",
     },
@@ -67,9 +67,9 @@ export default function SignupUnified() {
     }));
   };
 
-  const handleNext = () => {
-    if (!formData.adminName.trim()) {
-      toast.error("Admin Name is required.");
+  const handleNext = async () => {
+    if (!formData.teacherName.trim()) {
+      toast.error("Teacher Name is required.");
       return;
     }
     if (!formData.schoolName.trim()) {
@@ -97,8 +97,33 @@ export default function SignupUnified() {
       return;
     }
 
+    try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URI}/api/teachers/register`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: formData.teacherName,
+        school: formData.schoolName,
+        email: formData.schoolEmail,
+        password: formData.password,
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      toast.error(data.message || "Registration failed.");
+      return;
+    }
+
     toast.success("Account created successfully!");
     router.push("/Login");
+  } catch (error) {
+    console.error("Registration error:", error);
+    toast.error("Something went wrong. Please try again.");
+  }
   };
 
   return (

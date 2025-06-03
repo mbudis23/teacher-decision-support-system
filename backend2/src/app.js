@@ -7,6 +7,7 @@ require("dotenv").config();
 const connectMongoDB = require("./configs/mongoDB");
 const healthRoutes = require("./routes/healthRoutes");
 const teacherRoutes = require("./routes/teacherRoutes");
+const studentRoutes = require("./routes/studentRoutes");
 
 const app = express();
 connectMongoDB();
@@ -23,6 +24,7 @@ app.use(cookieParser());
 
 app.use("/api", healthRoutes);
 app.use("/api/teachers", teacherRoutes);
+app.use("/api/students", studentRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

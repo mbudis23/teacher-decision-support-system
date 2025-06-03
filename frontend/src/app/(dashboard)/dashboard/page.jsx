@@ -24,44 +24,28 @@ ChartJS.register(
 export default function DashboardPage() {
   const [students, setStudents] = useState([]);
   useEffect(() => {
-    setStudents([
-      {
-        name: "Andi Wijaya",
-        className: "CS50",
-        email: "andi.wijaya@example.com",
-        gender: "Male",
-        grade: 85,
-        attendance: 95,
-        violations: 2,
-      },
-      {
-        name: "Siti Rahma",
-        className: "CS52",
-        email: "siti.rahma@example.com",
-        gender: "Female",
-        grade: 90,
-        attendance: 98,
-        violations: 1,
-      },
-      {
-        name: "Budi Santoso",
-        className: "CS51",
-        email: "budi.santoso@example.com",
-        gender: "Male",
-        grade: 78,
-        attendance: 88,
-        violations: 3,
-      },
-      {
-        name: "Rina Kartika",
-        className: "CS50",
-        email: "rina.kartika@example.com",
-        gender: "Female",
-        grade: 88,
-        attendance: 92,
-        violations: 0,
-      },
-    ]);
+    const fetchStudents = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URI}/api/students`,
+          {
+            method: "GET",
+            credentials: "include", // jika backend pakai cookie
+          }
+        );
+
+        if (!res.ok) {
+          throw new Error("Failed to fetch students");
+        }
+
+        const data = await res.json();
+        setStudents(data);
+      } catch (error) {
+        console.error("Error fetching students:", error);
+      }
+    };
+
+    fetchStudents();
   }, []);
 
   const avgAttendance = useMemo(() => {
@@ -152,31 +136,31 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
-          <div className="bg-white rounded-lg shadow-md p-6 flex flex-col">
-            <span className="text-sm font-medium text-gray-500">
-              Rata-rata Attendance (%)
-            </span>
-            <span className="mt-2 text-3xl font-semibold text-gray-800">
-              {avgAttendance}
-            </span>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6 flex flex-col">
-            <span className="text-sm font-medium text-gray-500">
-              Total Violations
-            </span>
-            <span className="mt-2 text-3xl font-semibold text-gray-800">
-              {totalViolations}
-            </span>
-          </div>
-          <div className="bg-white rounded-lg shadow-md p-6 flex flex-col">
-            <span className="text-sm font-medium text-gray-500">
-              Rata-rata Grade
-            </span>
-            <span className="mt-2 text-3xl font-semibold text-gray-800">
-              {avgGrade}
-            </span>
-          </div>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+        <div className="bg-white rounded-lg shadow-md p-6 flex flex-col">
+          <span className="text-sm font-medium text-gray-500">
+            Rata-rata Attendance (%)
+          </span>
+          <span className="mt-2 text-3xl font-semibold text-gray-800">
+            {avgAttendance}
+          </span>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6 flex flex-col">
+          <span className="text-sm font-medium text-gray-500">
+            Total Violations
+          </span>
+          <span className="mt-2 text-3xl font-semibold text-gray-800">
+            {totalViolations}
+          </span>
+        </div>
+        <div className="bg-white rounded-lg shadow-md p-6 flex flex-col">
+          <span className="text-sm font-medium text-gray-500">
+            Rata-rata Grade
+          </span>
+          <span className="mt-2 text-3xl font-semibold text-gray-800">
+            {avgGrade}
+          </span>
+        </div>
       </div>
       <div className="bg-white rounded-lg shadow-md p-6">
         <Bar data={barData} options={barOptions} />
