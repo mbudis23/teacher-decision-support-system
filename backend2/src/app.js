@@ -3,7 +3,10 @@ const cors = require("cors");
 const morgan = require("morgan");
 const cookieParser = require("cookie-parser");
 require("dotenv").config();
+
 const connectMongoDB = require("./configs/mongoDB");
+const healthRoutes = require("./routes/healthRoutes");
+const teacherRoutes = require("./routes/teacherRoutes");
 
 const app = express();
 connectMongoDB();
@@ -11,8 +14,10 @@ connectMongoDB();
 app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
-app.use(cookieParser);
-// app.use('/api', routes);
+app.use(cookieParser());
+
+app.use("/api", healthRoutes);
+app.use("/api/teachers", teacherRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
