@@ -36,6 +36,7 @@ export default function SWACalculatorPage() {
   };
 
   const [inputs, setInputs] = useState({
+    studentName: "",
     academic: "",
     absence: "",
     violation: rubrics.violation[0].value,
@@ -109,8 +110,19 @@ export default function SWACalculatorPage() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    const { academic, absence, violation, observation, motivation } = inputs;
+    const {
+      studentName,
+      academic,
+      absence,
+      violation,
+      observation,
+      motivation,
+    } = inputs;
 
+    if (!studentName.trim()) {
+      toast.error("Nama siswa wajib diisi.");
+      return;
+    }
     if (
       academic === "" ||
       absence === "" ||
@@ -163,7 +175,7 @@ export default function SWACalculatorPage() {
     }
 
     toast.success(`Perhitungan selesai. Skor: ${finalScore}`);
-    setResult({ score: finalScore, recommendation });
+    setResult({ studentName, score: finalScore, recommendation });
   };
 
   return (
@@ -183,8 +195,8 @@ export default function SWACalculatorPage() {
       <div>
         <h2 className="text-2xl font-semibold text-gray-800">SWA Calculator</h2>
         <p className="mt-2 text-gray-600">
-          Masukkan nilai untuk kelima kriteria berikut, kemudian tekan "Hitung"
-          untuk mendapatkan skor akhir dan rekomendasi.
+          Masukkan nama siswa dan nilai untuk kelima kriteria berikut, kemudian
+          tekan "Hitung" untuk mendapatkan skor akhir dan rekomendasi.
         </p>
       </div>
 
@@ -192,6 +204,25 @@ export default function SWACalculatorPage() {
         onSubmit={handleSubmit}
         className="bg-white rounded-lg shadow-md p-6 w-full space-y-6"
       >
+        <div>
+          <label
+            htmlFor="studentName"
+            className="block text-sm font-medium text-gray-700 mb-1"
+          >
+            Nama Siswa
+          </label>
+          <input
+            type="text"
+            id="studentName"
+            name="studentName"
+            value={inputs.studentName}
+            onChange={handleChange}
+            placeholder="Masukkan nama siswa"
+            className="w-full border border-gray-300 rounded-md px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+        </div>
+
         {fields.map((field) =>
           field.type === "number" ? (
             <div key={field.name}>
@@ -262,6 +293,12 @@ export default function SWACalculatorPage() {
       {result && (
         <div className="bg-white rounded-lg shadow-md p-6 w-full space-y-4">
           <h3 className="text-lg font-medium text-gray-800">Hasil SWA</h3>
+          <p className="text-gray-700">
+            Nama Siswa:{" "}
+            <span className="font-semibold text-gray-900">
+              {result.studentName}
+            </span>
+          </p>
           <p className="text-gray-700">
             Skor Akhir:{" "}
             <span className="font-semibold text-gray-900">{result.score}</span>

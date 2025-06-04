@@ -3,13 +3,25 @@
 import React, { useState, useEffect, useMemo } from "react";
 import DataTable from "@/components/DataTable";
 import StudentModal from "@/components/StudentModal";
-import { FilePlusIcon, DownloadIcon } from "lucide-react";
+import { FilePlusIcon, DownloadIcon, ChevronDown } from "lucide-react";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 export default function DataSiswaPage() {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+
+  // State untuk filter & sort
+  const [filterClass, setFilterClass] = useState("");
+  const [filterGender, setFilterGender] = useState("");
+  const [sortKey, setSortKey] = useState("");
+
+  // State untuk memantau focus tiap dropdown
+  const [selectFocus, setSelectFocus] = useState({
+    filterClass: false,
+    filterGender: false,
+    sortKey: false,
+  });
 
   const [showModal, setShowModal] = useState(false);
   const [newStudent, setNewStudent] = useState({
@@ -42,20 +54,62 @@ export default function DataSiswaPage() {
     fetchStudents();
   }, []);
 
+  // Hitung daftar unik className & gender untuk opsi filter
+  const uniqueClasses = useMemo(() => {
+    const classes = new Set();
+    data.forEach((row) => {
+      if (row.className) classes.add(row.className);
+    });
+    return Array.from(classes).sort();
+  }, [data]);
+
+  const uniqueGenders = useMemo(() => {
+    const genders = new Set();
+    data.forEach((row) => {
+      if (row.gender) genders.add(row.gender);
+    });
+    return Array.from(genders).sort();
+  }, [data]);
+
   const handleSearchChange = (e) => {
     setSearchTerm(e.target.value);
   };
 
+  // Filtering & sorting data
   const filteredData = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
-    if (!term) return data;
+    let temp = data;
 
-    return data.filter(
-      (row) =>
-        row.name.toLowerCase().includes(term) ||
-        row.email.toLowerCase().includes(term)
-    );
-  }, [data, searchTerm]);
+    // 1. Search by name/email
+    if (term) {
+      temp = temp.filter(
+        (row) =>
+          row.name.toLowerCase().includes(term) ||
+          row.email.toLowerCase().includes(term)
+      );
+    }
+
+    // 2. Filter by kelas
+    if (filterClass) {
+      temp = temp.filter((row) => row.className === filterClass);
+    }
+
+    // 3. Filter by gender
+    if (filterGender) {
+      temp = temp.filter((row) => row.gender === filterGender);
+    }
+
+    // 4. Sort descending berdasarkan sortKey
+    if (sortKey) {
+      temp = [...temp].sort((a, b) => {
+        const aVal = parseFloat(a[sortKey] ?? 0);
+        const bVal = parseFloat(b[sortKey] ?? 0);
+        return bVal - aVal;
+      });
+    }
+
+    return temp;
+  }, [data, searchTerm, filterClass, filterGender, sortKey]);
 
   const handleExportCSV = () => {
     if (filteredData.length === 0) return;
@@ -68,6 +122,7 @@ export default function DataSiswaPage() {
       "Grade",
       "Attendance (%)",
       "Violations",
+      "SWA Score",
     ];
     const csvRows = [headers.join(",")];
 
@@ -80,6 +135,7 @@ export default function DataSiswaPage() {
         row.grade,
         row.attendance,
         row.violations,
+        row.SWA_Score,
       ].map((val) => {
         const str = String(val);
         if (str.includes(",") || str.includes('"') || str.includes("\n")) {
@@ -208,6 +264,7 @@ export default function DataSiswaPage() {
         draggable
         pauseOnHover
       />
+
       <div className="flex gap-3">
         <button
           onClick={handleExportCSV}
@@ -225,7 +282,87 @@ export default function DataSiswaPage() {
         </button>
       </div>
 
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      {/* Filter, Order By, dan Search */}
+      <div className="flex flex-wrap items-center gap-4">
+        {/* Filter Kelas */}
+        <div className="relative">
+          <select
+            value={filterClass}
+            onChange={(e) => setFilterClass(e.target.value)}
+            onFocus={() =>
+              setSelectFocus((prev) => ({ ...prev, filterClass: true }))
+            }
+            onBlur={() =>
+              setSelectFocus((prev) => ({ ...prev, filterClass: false }))
+            }
+            className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer"
+          >
+            <option value="">Semua Kelas</option>
+            {uniqueClasses.map((cls, idx) => (
+              <option key={idx} value={cls}>
+                {cls}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            className={`absolute right-3 top-3 w-5 h-5 text-gray-500 pointer-events-none transform transition-transform duration-200 ${
+              selectFocus.filterClass ? "rotate-180" : ""
+            }`}
+          />
+        </div>
+
+        {/* Filter Gender */}
+        <div className="relative">
+          <select
+            value={filterGender}
+            onChange={(e) => setFilterGender(e.target.value)}
+            onFocus={() =>
+              setSelectFocus((prev) => ({ ...prev, filterGender: true }))
+            }
+            onBlur={() =>
+              setSelectFocus((prev) => ({ ...prev, filterGender: false }))
+            }
+            className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer"
+          >
+            <option value="">Semua Gender</option>
+            {uniqueGenders.map((g, idx) => (
+              <option key={idx} value={g}>
+                {g}
+              </option>
+            ))}
+          </select>
+          <ChevronDown
+            className={`absolute right-3 top-3 w-5 h-5 text-gray-500 pointer-events-none transform transition-transform duration-200 ${
+              selectFocus.filterGender ? "rotate-180" : ""
+            }`}
+          />
+        </div>
+
+        {/* Order By */}
+        <div className="relative">
+          <select
+            value={sortKey}
+            onChange={(e) => setSortKey(e.target.value)}
+            onFocus={() =>
+              setSelectFocus((prev) => ({ ...prev, sortKey: true }))
+            }
+            onBlur={() =>
+              setSelectFocus((prev) => ({ ...prev, sortKey: false }))
+            }
+            className="w-full border border-gray-300 rounded-md px-3 py-2 pr-10 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none cursor-pointer"
+          >
+            <option value="">Urutkan</option>
+            <option value="attendance">Attendance % (tinggi ke rendah)</option>
+            <option value="grade">Grade (tinggi ke rendah)</option>
+            <option value="violations">Violations (tinggi ke rendah)</option>
+            <option value="SWA_Score">SWA Score (tinggi ke rendah)</option>
+          </select>
+          <ChevronDown
+            className={`absolute right-3 top-3 w-5 h-5 text-gray-500 pointer-events-none transform transition-transform duration-200 ${
+              selectFocus.sortKey ? "rotate-180" : ""
+            }`}
+          />
+        </div>
         <div className="flex-1">
           <input
             type="text"

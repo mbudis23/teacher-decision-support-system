@@ -23,8 +23,12 @@ export default function DataTable({ data }) {
             </th>
             <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">
               Attedance %
-            </th><th className="px-4 py-2 text-left text-sm font-medium text-gray-600">
+            </th>
+            <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">
               Violation
+            </th>
+            <th className="px-4 py-2 text-left text-sm font-medium text-gray-600">
+              SWA Score
             </th>
           </tr>
         </thead>
@@ -46,6 +50,8 @@ export default function DataTable({ data }) {
                 {row.attendance}%
               </td><td className="px-4 py-3 text-sm text-gray-700">
                 {row.violations}
+              </td><td className="px-4 py-3 text-sm text-gray-700">
+                {row.SWA_Score}
               </td>
             </tr>
           ))}
