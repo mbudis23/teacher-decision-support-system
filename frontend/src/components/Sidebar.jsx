@@ -10,6 +10,7 @@ import {
   LifeBuoyIcon,
   UserIcon,
   LogOutIcon,
+  TrophyIcon,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
@@ -77,6 +78,7 @@ export default function Sidebar() {
           </span>
         </div>
       </div>
+
       <nav className="flex-1 px-2 py-4 space-y-1 overflow-y-auto">
         <SidebarItem href="/dashboard" icon={HomeIcon} label="Dashboard" />
         <SidebarItem href="/data-siswa" icon={UsersIcon} label="Data Siswa" />
@@ -95,8 +97,10 @@ export default function Sidebar() {
           icon={LifeBuoyIcon}
           label="Bantuan & Dokumentasi"
         />
+        <SidebarItem href="/ranking" icon={TrophyIcon} label="Ranking" />
         <SidebarItem href="/profile" icon={UserIcon} label="Profile" />
       </nav>
+
       <div className="px-4 py-4 border-t border-blue-700">
         <button
           onClick={handleLogout}
