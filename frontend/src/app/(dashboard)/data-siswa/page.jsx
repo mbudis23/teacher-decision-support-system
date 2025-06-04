@@ -11,12 +11,10 @@ export default function DataSiswaPage() {
   const [data, setData] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
 
-  // State untuk filter & sort
   const [filterClass, setFilterClass] = useState("");
   const [filterGender, setFilterGender] = useState("");
   const [sortKey, setSortKey] = useState("");
 
-  // State untuk memantau focus tiap dropdown
   const [selectFocus, setSelectFocus] = useState({
     filterClass: false,
     filterGender: false,
@@ -54,7 +52,6 @@ export default function DataSiswaPage() {
     fetchStudents();
   }, []);
 
-  // Hitung daftar unik className & gender untuk opsi filter
   const uniqueClasses = useMemo(() => {
     const classes = new Set();
     data.forEach((row) => {
@@ -75,12 +72,9 @@ export default function DataSiswaPage() {
     setSearchTerm(e.target.value);
   };
 
-  // Filtering & sorting data
   const filteredData = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
     let temp = data;
-
-    // 1. Search by name/email
     if (term) {
       temp = temp.filter(
         (row) =>
@@ -88,18 +82,12 @@ export default function DataSiswaPage() {
           row.email.toLowerCase().includes(term)
       );
     }
-
-    // 2. Filter by kelas
     if (filterClass) {
       temp = temp.filter((row) => row.className === filterClass);
     }
-
-    // 3. Filter by gender
     if (filterGender) {
       temp = temp.filter((row) => row.gender === filterGender);
     }
-
-    // 4. Sort descending berdasarkan sortKey
     if (sortKey) {
       temp = [...temp].sort((a, b) => {
         const aVal = parseFloat(a[sortKey] ?? 0);
@@ -281,10 +269,7 @@ export default function DataSiswaPage() {
           <span>Tambah Data Siswa</span>
         </button>
       </div>
-
-      {/* Filter, Order By, dan Search */}
       <div className="flex flex-wrap items-center gap-4">
-        {/* Filter Kelas */}
         <div className="relative">
           <select
             value={filterClass}
@@ -310,8 +295,6 @@ export default function DataSiswaPage() {
             }`}
           />
         </div>
-
-        {/* Filter Gender */}
         <div className="relative">
           <select
             value={filterGender}
@@ -337,8 +320,6 @@ export default function DataSiswaPage() {
             }`}
           />
         </div>
-
-        {/* Order By */}
         <div className="relative">
           <select
             value={sortKey}
