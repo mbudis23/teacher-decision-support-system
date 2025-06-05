@@ -1,32 +1,47 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
+
+const API_URI = process.env.NEXT_PUBLIC_API_URI;
 
 export default function RankingPage() {
-  const rankingData = [
-    {
-      name: "Ahmad Nur",
-      score: 0.85,
-      recommendation: "Tidak perlu intervensi khusus. Terus pantau rutin.",
-    },
-    {
-      name: "Budi Santoso",
-      score: 0.65,
-      recommendation: "Perlu perhatian ringan: jadwalkan sesi konseling singkat.",
-    },
-    {
-      name: "Citra Dewi",
-      score: 0.45,
-      recommendation: "Perlu intervensi intensif: rujuk ke Tim BK untuk pendampingan.",
-    },
-  ];
+  const [rankingData, setRankingData] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+  useEffect(() => {
+    const fetchRanking = async () => {
+      try {
+        const response = await fetch(
+          `${API_URI}/api/students/rank-low-recomendations?className=Math 01`,
+          {
+            method: "GET",
+            credentials: "include", // memastikan cookies dikirim
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error("Gagal mengambil data dari server");
+        }
+
+        const data = await response.json();
+        setRankingData(data);
+      } catch (err) {
+        setError("Gagal memuat data ranking siswa.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchRanking();
+  }, []);
 
   return (
     <div className="space-y-6">
       <div>
         <h2 className="text-2xl font-semibold text-gray-800">Ranking Siswa</h2>
         <p className="mt-2 text-gray-600">
-          Berikut adalah daftar ranking siswa berdasarkan skor SWA dan rekomendasi.
+          Berikut adalah daftar ranking siswa berdasarkan skor SWA dan
+          rekomendasi.
         </p>
       </div>
 
@@ -52,7 +67,9 @@ export default function RankingPage() {
                 className={idx % 2 === 0 ? "bg-white" : "bg-gray-100"}
               >
                 <td className="px-4 py-3 text-sm text-gray-700">{item.name}</td>
-                <td className="px-4 py-3 text-sm text-gray-700">{item.score}</td>
+                <td className="px-4 py-3 text-sm text-gray-700">
+                  {item.score}
+                </td>
                 <td className="px-4 py-3 text-sm text-gray-700">
                   {item.recommendation}
                 </td>
