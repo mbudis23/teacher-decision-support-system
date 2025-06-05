@@ -12,7 +12,7 @@ export default function RankingPage() {
     const fetchRanking = async () => {
       try {
         const response = await fetch(
-          `${API_URI}/api/students/rank-low-recomendations?className=Math 01`,
+          `${API_URI}/api/students/rank-low-recomendations?className=Pendidikan Kewarganegaraan`,
           {
             method: "GET",
             credentials: "include", // memastikan cookies dikirim

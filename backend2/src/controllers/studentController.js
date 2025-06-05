@@ -114,18 +114,17 @@ const getStudentRankLow = async (req, res) => {
       violations: 0.2, // cost
     };
 
-    // Nilai maksimum dan minimum
     const maxGrade = Math.max(...students.map((s) => s.grade));
     const maxAttendance = Math.max(...students.map((s) => s.attendance));
     const minViolations = Math.min(...students.map((s) => s.violations));
 
     const scoredStudents = students.map((s) => {
-      const normGrade = s.grade / (maxGrade || 1); // benefit
-      const normAttendance = s.attendance / (maxAttendance || 1); // benefit
+      const normGrade = s.grade / (maxGrade || 1);
+      const normAttendance = s.attendance / (maxAttendance || 1);
       const normViolations =
         minViolations === 0
-          ? 1 / (s.violations + 1) // cost, hindari pembagian 0
-          : minViolations / (s.violations + 1); // cost + handling 0
+          ? 1 / (s.violations + 1)
+          : minViolations / (s.violations + 1);
 
       const finalScore =
         normGrade * weights.grade +
@@ -141,51 +140,72 @@ const getStudentRankLow = async (req, res) => {
     const sorted = [...scoredStudents].sort(
       (a, b) => a.finalScore - b.finalScore
     );
+    const top10Lowest = sorted.slice(0, 10);
 
-    const daftarDetail = sorted
-      .map((s, i) => {
-        return `${i + 1}. Nama: ${s.name}
-   - Kelas: ${s.className}
-   - Nilai Akademik (Grade): ${s.grade}
-   - Kehadiran: ${s.attendance}%
-   - Jumlah Pelanggaran: ${s.violations}
-   - Skor SAW: ${s.finalScore}`;
-      })
-      .join("\n\n");
+    // Ringkasan siswa
+    const daftarDetail = top10Lowest
+      .map(
+        (s, i) =>
+          `${i + 1}. Nama: ${s.name} - Grade: ${s.grade} - Kehadiran: ${
+            s.attendance
+          }% - Pelanggaran: ${s.violations} - Skor SAW: ${s.finalScore}`
+      )
+      .join("\n");
 
-    const prompt = `Saya adalah seorang guru wali kelas dan ingin memberikan bimbingan kepada seluruh siswa. Berikut data siswa diurutkan berdasarkan skor SAW yang mempertimbangkan nilai akademik, kehadiran, dan pelanggaran:
+    const prompt = `Saya seorang guru wali kelas. Berikut adalah 10 siswa dengan performa terendah berdasarkan skor SAW (gabungan nilai akademik, kehadiran, dan pelanggaran):
 
 ${daftarDetail}
 
-Tolong berikan satu rekomendasi singkat dan personal untuk masing-masing siswa, agar saya bisa membantu mereka secara akademik, sosial, atau disiplin. Format hasil seperti:
-
+Beri saya satu rekomendasi singkat dan personal untuk setiap siswa, agar saya bisa mendampingi mereka secara akademik, sosial, atau disiplin. Format:
 1. Nama Siswa - Rekomendasi guru`;
 
-    const geminiRes = await axios.post(
-      GEMINI_URL,
-      { contents: [{ parts: [{ text: prompt }] }] },
-      { headers }
-    );
+    let rekomendasiList = [];
 
-    const rekomendasiText =
-      geminiRes.data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+    try {
+      const geminiRes = await fetch(GEMINI_URL, {
+        method: "POST",
+        headers,
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+        }),
+      });
 
-    const rekomendasiList = rekomendasiText
-      .split("\n")
-      .filter((line) => line.trim() !== "")
-      .map((line) => {
-        const match = line.match(/^\d+\.\s*(.*?)\s*[-–—]\s*(.*)$/);
-        if (match) {
-          return {
-            name: match[1].trim(),
-            recommendation: match[2].trim(),
-          };
-        }
-        return null;
-      })
-      .filter(Boolean);
+      if (!geminiRes.ok) throw new Error(`Status ${geminiRes.status}`);
 
-    const finalResult = sorted.map((s) => {
+      const data = await geminiRes.json();
+      const rekomendasiText =
+        data?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+      rekomendasiList = rekomendasiText
+        .split("\n")
+        .filter((line) => line.trim() !== "")
+        .map((line) => {
+          const match = line.match(/^\d+\.\s*(.*?)\s*[-–—]\s*(.*)$/);
+          if (match) {
+            return {
+              name: match[1].trim(),
+              recommendation: match[2].trim(),
+            };
+          }
+          return null;
+        })
+        .filter(Boolean);
+    } catch (err) {
+      console.warn("Gagal ambil dari Gemini. Gunakan fallback default.");
+      rekomendasiList = top10Lowest.map((s) => ({
+        name: s.name,
+        recommendation:
+          s.grade < 60
+            ? "Fokuskan pendampingan akademik dan belajar terstruktur."
+            : s.attendance < 75
+            ? "Motivasi untuk meningkatkan kehadiran dan disiplin waktu."
+            : s.violations > 3
+            ? "Diskusi dan refleksi terkait pelanggaran yang dilakukan."
+            : "Pantau secara berkala dan berikan semangat belajar.",
+      }));
+    }
+
+    const finalResult = top10Lowest.map((s) => {
       const rec = rekomendasiList.find(
         (r) => r.name.toLowerCase() === s.name.toLowerCase()
       );
